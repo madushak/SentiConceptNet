@@ -10,6 +10,7 @@ from numpy import var
 
 import dataset.anew as anew
 import dataset.senticnet as sn
+import dataset.sentiwordnet as swn
 import dataset.conceptnet as cn
 import dataset.filters as filters
 
@@ -20,6 +21,7 @@ from shift import align_zero, align_mean_var
 from active import calc_impacts
 from eval import polarity_accuracy, kendall_tau
 from lookup import lookup
+from dictionary import dictionary
 
 __all__ = (
     'handle_split',
@@ -30,7 +32,8 @@ __all__ = (
     'handle_shift',
     'handle_impact',
     'handle_eval',
-    'handle_lookup'
+    'handle_lookup',
+	'handle_dictionary'
 )
 
 
@@ -77,7 +80,8 @@ def handle_split(graph_paths, nodes_path, edges_path, rels_path):
 def handle_seeds(source, raw_path, seed_path, nodes_path):
     load = {
         'anew': anew.load,
-        'sn': sn.load
+        'sn': sn.load,
+        'swn': swn.load
     }[source]
 
     nodes = _load(nodes_path)
@@ -85,22 +89,25 @@ def handle_seeds(source, raw_path, seed_path, nodes_path):
     _save(seed_path, seeds)
 
 
-def handle_iterreg(anew_path, sn_path, edges_path, pred_path, pis_path=None,
+def handle_iterreg(anew_path, sn_path, swn_path, edges_path, pred_path, pis_path=None,
                    param=None):
     anew = _load(anew_path, atof)
     sn = _load(sn_path, atof)
+    swn = _load(swn_path, atof)
     edges = _load_edges(edges_path)
 
     pis = None
     if pis_path is not None:
         pis = _load(pis_path, atof)
 
-    pred = iterreg(anew, sn, edges, pis, param)
+    pred = iterreg(anew, sn, swn, edges, pis, param)
     _save(pred_path, pred)
 
 
 def handle_ircert(pred_paths, cert_path):
     val_list = []
+    #pred_paths = pred_paths[1:-1].split(',')
+    #print pred_paths
     for path in pred_paths:
         preds = _load(path, atof)
         preds = [v if v is not None else uniform(-1, 1) for v in preds]
@@ -159,12 +166,24 @@ def handle_eval(metric, pred_path, truth_path):
     print result
 
 
-def handle_lookup(nodes_path, anew_path, sn_path, pred_path,
+def handle_lookup(nodes_path, anew_path, sn_path, swn_path, pred_path,
                   rels_path, edges_path):
     nodes = _load(nodes_path)
     anew = _load(anew_path, atof)
     sn = _load(sn_path, atof)
+    swn = _load(swn_path, atof)
     pred = _load(pred_path, atof)
     rels = _load(rels_path)
     edges = _load_edges(edges_path)
-    lookup(nodes, anew, sn, pred, rels, edges)
+    lookup(nodes, anew, sn, swn, pred, rels, edges)
+	
+def handle_dictionary(dict_path, nodes_path, anew_path, sn_path, swn_path, pred_path,
+                  rels_path, edges_path):
+    nodes = _load(nodes_path)
+    anew = _load(anew_path, atof)
+    sn = _load(sn_path, atof)
+    swn = _load(swn_path, atof)
+    pred = _load(pred_path, atof)
+    rels = _load(rels_path)
+    edges = _load_edges(edges_path)
+    dictionary(dict_path, nodes, anew, sn, swn, pred, rels, edges)

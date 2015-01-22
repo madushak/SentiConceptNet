@@ -9,7 +9,6 @@ from handler import *
 def main():
     parser = ArgumentParser()
     subparsers = parser.add_subparsers()
-
     parser_sp = subparsers.add_parser('split')
     parser_sp.set_defaults(handler=handle_split)
     parser_sp.add_argument('--graph', dest='graph_paths', nargs='+', required=True)
@@ -19,7 +18,7 @@ def main():
 
     parser_sd = subparsers.add_parser('seeds')
     parser_sd.set_defaults(handler=handle_seeds)
-    parser_sd.add_argument('source', choices=('anew', 'sn'))
+    parser_sd.add_argument('source', choices=('swn', 'anew', 'sn'))
     parser_sd.add_argument('--raw', dest='raw_path', required=True)
     parser_sd.add_argument('--seed', dest='seed_path', required=True)
     parser_sd.add_argument('--nodes', dest='nodes_path', required=True)
@@ -28,6 +27,7 @@ def main():
     parser_ir.set_defaults(handler=handle_iterreg)
     parser_ir.add_argument('--anew', dest='anew_path', required=True)
     parser_ir.add_argument('--sn', dest='sn_path', required=True)
+    parser_ir.add_argument('--swn', dest='swn_path', required=True)
     parser_ir.add_argument('--edges', dest='edges_path', required=True)
     parser_ir.add_argument('--pis', dest='pis_path')
     parser_ir.add_argument('--pred', dest='pred_path', required=True)
@@ -69,7 +69,19 @@ def main():
     parser_lk.add_argument('--rels', dest='rels_path', required=True)
     parser_lk.add_argument('--anew', dest='anew_path', required=True)
     parser_lk.add_argument('--sn', dest='sn_path', required=True)
+    parser_lk.add_argument('--swn', dest='swn_path', required=True)
     parser_lk.add_argument('--pred', dest='pred_path', required=True)
+	
+    parser_dc = subparsers.add_parser('dictionary')
+    parser_dc.set_defaults(handler=handle_dictionary)
+    parser_dc.add_argument('--dict', dest='dict_path', required=True)
+    parser_dc.add_argument('--nodes', dest='nodes_path', required=True)
+    parser_dc.add_argument('--edges', dest='edges_path', required=True)
+    parser_dc.add_argument('--rels', dest='rels_path', required=True)
+    parser_dc.add_argument('--anew', dest='anew_path', required=True)
+    parser_dc.add_argument('--sn', dest='sn_path', required=True)
+    parser_dc.add_argument('--swn', dest='swn_path', required=True)
+    parser_dc.add_argument('--pred', dest='pred_path', required=True)	
 
     parser_ev = subparsers.add_parser('eval')
     parser_ev.set_defaults(handler=handle_eval)

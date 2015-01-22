@@ -5,7 +5,7 @@ from sys import stderr
 __all__ = ('lookup',)
 
 
-def lookup(nodes, anew, sn, pred, rels, edges):
+def lookup(nodes, anew, sn, swn, pred, rels, edges):
     idx_map = dict((c, i) for i, c in enumerate(nodes))
     while True:
         target = raw_input('>>> ').strip().replace(' ', '_')
@@ -32,6 +32,7 @@ def lookup(nodes, anew, sn, pred, rels, edges):
         print 'Informations:'
         print '\tSentiment (ANEW): {0}'.format(anew[idx])
         print '\tSentiment (SN)  : {0}'.format(sn[idx])
+        print '\tSentiment (SWN) : {0}'.format(swn[idx])
         print '\tSentiment (PRED): {0}'.format(pred[idx])
 
         print 'Self Loops ({0}):'.format(len(self_loops))
@@ -43,13 +44,13 @@ def lookup(nodes, anew, sn, pred, rels, edges):
             rel = start_assertion.rel
             end = start_assertion.end
             weight = start_assertion.weight
-            print '\t({0} {1}, {2}) - ({3}, {4}, {5})' \
-                .format(rels[rel], nodes[end], weight, anew[end], sn[end], pred[end])
+            print '\t({0} {1}, {2}) - ({3}, {4}, {5}, {6})' \
+                .format(rels[rel], nodes[end], weight, anew[end], sn[end], swn[end], pred[end])
 
         print 'End Assertions ({0}):'.format(len(end_assertions))
         for end_assertion in end_assertions:
             rel = end_assertion.rel
             start = end_assertion.start
             weight = end_assertion.weight
-            print '\t({0} {1}, {2}) - ({3}, {4}, {5})' \
-                .format(nodes[start], rels[rel], weight, anew[start], sn[start], pred[start])
+            print '\t({0} {1}, {2}) - ({3}, {4}, {5}, {6})' \
+                .format(nodes[start], rels[rel], weight, anew[start], sn[start], swn[start], pred[start])

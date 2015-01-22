@@ -22,5 +22,6 @@ def iter_parse(path):
 
 
 def load(path):
+    print itemgetter('Description')
     value_getter = F(itemgetter('Valence Mean')) >> _normalize_value
     return _load(path, iter_parse, key=itemgetter('Description'), value=value_getter)

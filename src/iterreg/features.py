@@ -11,7 +11,7 @@ __all__ = (
 _SelfFeatures = namedtuple('SelfFeatures', ('sentiment', 'polarity'))
 _NeighborFeatures = namedtuple(
     'NeighborFeatures',
-    ('direction', 'relation', 'weight', 'anew', 'sn', 'pis')
+    ('direction', 'relation', 'weight', 'anew', 'sn', 'swn', 'pis')
 )
 
 
@@ -37,19 +37,20 @@ def _get_neighbor_tuple(neighbor, seed):
     seed_id = {
         'anew': 0,
         'sn': 1,
-        'pis': 2
+        'swn': 2,
+        'pis': 3
     }[seed]
     return (seed_id, neighbor.direction, neighbor.relation, neighbor[3 + seed_id])
 
 
-def generate_features(anew, sn, edges, pis=None):
+def generate_features(anew, sn, swn, edges, pis=None):
     if pis is None:
         pis = (None,) * len(anew)
 
     features = [{
         'self': _SelfFeatures(_none2f(sentiment), _sign(sentiment)),
         'neighbor': [],
-        'weight_sum': {'anew': 0.0, 'sn': 0.0, 'pis': 0.0}
+        'weight_sum': {'anew': 0.0, 'sn': 0.0, 'swn': 0.0, 'pis': 0.0}
     } for sentiment in sn]
 
     for edge in edges:
@@ -61,6 +62,7 @@ def generate_features(anew, sn, edges, pis=None):
                 0, rel, weight,
                 _interval(anew[end]),
                 _interval(sn[end]),
+                _interval(swn[end]),
                 _interval(pis[end])
             )
         )
@@ -69,6 +71,7 @@ def generate_features(anew, sn, edges, pis=None):
                 1, rel, weight,
                 _interval(anew[start]),
                 _interval(sn[start]),
+                _interval(swn[start]),
                 _interval(pis[start])
             )
         )
@@ -77,6 +80,8 @@ def generate_features(anew, sn, edges, pis=None):
             features[end]['weight_sum']['anew'] += weight
         if sn[start] is not None:
             features[end]['weight_sum']['sn'] += weight
+        if swn[start] is not None:
+            features[end]['weight_sum']['swn'] += weight
         if pis[start] is not None:
             features[end]['weight_sum']['pis'] += weight
 
@@ -84,6 +89,8 @@ def generate_features(anew, sn, edges, pis=None):
             features[start]['weight_sum']['anew'] += weight
         if sn[end] is not None:
             features[start]['weight_sum']['sn'] += weight
+        if swn[end] is not None:
+            features[start]['weight_sum']['swn'] += weight
         if pis[end] is not None:
             features[start]['weight_sum']['pis'] += weight
 
@@ -124,6 +131,15 @@ def encode_features(features):
                     + neighbor.relation * 12 \
                     + neighbor.sn
                 encoded_feature[index] += weight / weight_sum['sn']
+            
+            if neighbor.swn is not None:
+                index = 1 * 2 * 12 * 33 \
+                    + neighbor.direction * 12 * 33 \
+                    + neighbor.relation * 12 \
+                    + neighbor.swn
+                if weight_sum['swn']==0:
+                    print index
+                encoded_feature[index] += weight / weight_sum['swn']
 
             if neighbor.pis is not None:
                 index = 2 * 2 * 12 * 33 \
@@ -136,5 +152,4 @@ def encode_features(features):
         if self_features.polarity != 0:
             encoded_feature[neighbor_type_number + 0] = self_features.sentiment
             encoded_feature[neighbor_type_number + 1] = self_features.polarity
-
         yield encoded_feature

@@ -21,8 +21,8 @@ def iter_parse(path):
     }
 
     for concept in root.iterfind('.//rdf:Description', nsmap):
-        text = concept.find('./api:text', nsmap).text
-        polarity = concept.find('./api:polarity', nsmap).text
+        text = concept[1].text
+        polarity = concept[len(concept)-1].text
         yield {'text': _normalize_term(text), 'polarity': float(polarity)}
 
 

@@ -14,7 +14,6 @@ __all__ = ('iterreg')
 def _learn(x, y, opts=None):
     if opts is None:
         opts = ''
-
     prob = svm_problem(y, x, isKernel=True)
     param = svm_parameter('-s 3 {0}'.format(opts))
     return svm_train(prob, param)
@@ -28,11 +27,10 @@ def _predict(m, x, y=None):
     return labels
 
 
-def iterreg(anew, sn, edges, pis=None, param=None):
+def iterreg(anew, sn, swn, edges, pis=None, param=None):
     train_ids = tuple(i for i, s in enumerate(anew) if s is not None)
-
     y = tuple(anew[i] for i in train_ids)
-    features = generate_features(anew, sn, edges, pis)
+    features = generate_features(anew, sn, swn, edges, pis)
     encoded_features = tuple(encode_features(features))
 
     x = tuple(encoded_features[i] for i in train_ids)
